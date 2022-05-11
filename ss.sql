@@ -1,0 +1,132 @@
+DROP DATABASE IF EXISTS butchershopdb;
+CREATE DATABASE butchershopdb;
+USE butchershopdb;
+
+DROP TABLE IF EXISTS coupon;
+DROP TABLE IF EXISTS cust;
+DROP TABLE IF EXISTS mycoupon;
+DROP TABLE IF EXISTS cate;
+DROP TABLE IF EXISTS meat;
+DROP TABLE IF EXISTS shipping;
+DROP TABLE IF EXISTS payment;
+DROP TABLE IF EXISTS order1;
+DROP TABLE IF EXISTS detail;
+DROP TABLE IF EXISTS cart;
+
+-- coupon 
+CREATE TABLE coupon (
+	cid	VARCHAR(30)	NOT NULL PRIMARY KEY,
+	name	VARCHAR(30)	NULL,
+	period	DATE	NULL,
+	saleRate	DOUBLE	NULL
+);
+
+-- cust
+CREATE TABLE cust (
+	id	VARCHAR(30)	PRIMARY KEY ,
+	name	VARCHAR(30)	NOT NULL,
+	pwd	VARCHAR(30)	NOT NULL,
+	addr	VARCHAR(100)	NULL,
+	regdate	DATE	NOT NULL
+);
+
+ALTER TABLE cust ADD CONSTRAINT FOREIGN KEY (id) REFERENCES coupon (cid);
+
+-- my coupon
+CREATE TABLE mycoupon (
+	mcid INT primary key,
+	id	VARCHAR(30)	NOT NULL ,
+    id2 VARCHAR(30) NOT NULL 
+);
+
+-- cate
+CREATE TABLE cate (
+	id	INT PRIMARY KEY ,
+	name VARCHAR(20) NOT NULL,
+	pid	INT ,
+    FOREIGN KEY (pid) references cate (id)
+);
+
+ALTER TABLE cate ADD CONSTRAINT FOREIGN KEY (pid) REFERENCES cate (id);
+ 
+-- meat 
+CREATE TABLE meat (
+	mid	INT	NOT NULL PRIMARY KEY,
+	price	INT	NOT NULL,
+	grade	CHAR(1)	NOT NULL,
+	country	VARCHAR(20)	NULL,
+	death DATE	NOT NULL
+);
+
+-- shipping
+
+CREATE TABLE shipping (
+	shipno	INT	NOT NULL PRIMARY KEY,
+	addr1	VARCHAR(30)	NOT NULL,
+	addr2	VARCHAR(30)	NULL,
+	zip	CHAR(5)	NULL,
+	reciever	VARCHAR(20)	NULL,
+	phone	VARCHAR(30)	NULL,
+	memo	VARCHAR(100)	NULL
+);
+
+-- payment
+CREATE TABLE payment (
+	pno	INT	NOT NULL PRIMARY KEY,
+	way	VARCHAR(20)	NOT NULL,
+	pdate	DATE	NULL
+);
+
+-- order1
+
+CREATE TABLE order1 (
+	num	INT	NOT NULL,
+	id	VARCHAR(50)	NOT NULL ,
+	price	INT	NULL,
+	pstatus	VARCHAR(20)	NULL,
+	dstatus	VARCHAR(20)	NULL,
+	date DATE NULL,
+	pno	INT	NOT NULL ,
+	shipno	INT	NOT NULL ,
+	mcid	INT	NULL 
+);
+
+
+ALTER TABLE order1 ADD CONSTRAINT PRIMARY KEY (id);
+ALTER TABLE order1 ADD CONSTRAINT FOREIGN KEY (id) REFERENCES cust(id);
+ALTER TABLE order1 ADD CONSTRAINT FOREIGN KEY (pno) REFERENCES payment(pno);
+ALTER TABLE order1 ADD CONSTRAINT FOREIGN KEY (shipno) REFERENCES shipping(shipno);
+ALTER TABLE order1 ADD CONSTRAINT FOREIGN KEY (mcid) REFERENCES mycoupon(mcid);
+
+ALTER TABLE order1 AUTO_INCREMENT = 1000;
+ALTER TABLE cate
+ADD CONSTRAINT UNIQUE (name);
+ALTER TABLE order1 ADD CONSTRAINT CHECK (price > 0);
+ALTER TABLE cust 
+ALTER COLUMN addr SET DEFAULT 'Seoul';
+
+
+-- detail
+
+CREATE TABLE detail (
+	detailno	INT	NOT NULL,
+	num	INT	NOT NULL ,
+	id	INT	NOT NULL ,
+	amount INT	not NULL
+);
+
+ALTER TABLE detail ADD CONSTRAINT FOREIGN KEY (id) REFERENCES meat(mid);
+
+-- cart
+CREATE TABLE cart (
+	no	INT	NOT NULL,
+	id	INT	NOT NULL,
+	amount	INT	NOT NULL,
+    id2 VARCHAR(30) 
+);
+
+ALTER TABLE cart ADD CONSTRAINT FOREIGN KEY (id) REFERENCES meat(mid);
+ALTER TABLE cart ADD CONSTRAINT FOREIGN KEY (id2) REFERENCES cust(id);
+
+
+SET FOREIGN_KEY_CHECKS = 0;
